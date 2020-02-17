@@ -1,6 +1,9 @@
 <?php
 namespace Megaads\ApifyClient;
 
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
+
 class Client
 {
     private static $client;
@@ -270,6 +273,16 @@ class Client
     }
     public static function request($url, $method = "GET", $data = [], $headers = [])
     {
+        $cacheValue = false;
+        if (config('cache.apify')) {
+            $time = config('cache.apify_time', 24*60);
+            $key = env("SHOP_UUID") . ":" .  $url;
+            $cacheValue = Cache::get($key);
+            if ($cacheValue) {
+                return $cacheValue;
+            }
+        }
+
         $retval = null;
         $channel = curl_init();
         $headers[] = 'Content-Type:application/json';
@@ -300,6 +313,29 @@ class Client
                 "result" => $response,
             ];
         }
+        if (config('cache.apify')) {
+            Cache::put($key, $retval, $time);
+        }
+
+        return $retval;
+    }
+    public static function clearCache($shopUuid, $model) {
+        $retval = [
+            'status' => 'fail',
+            'msg' => "Unknown Error"
+        ];
+        if (!$shopUuid) {
+            $retval['msg'] = "Shop UUID required";
+        }
+        $keys = Redis::keys("*$shopUuid*$model*");
+        $count = count($keys);
+        if ($count) {
+            Redis::del($keys);
+        }
+        $retval = [
+            'status' => 'successful',
+            'msg' => "Deleted $count keys"
+        ];
         return $retval;
     }
 }
