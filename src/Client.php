@@ -276,7 +276,7 @@ class Client
         $cacheValue = false;
         if (config('cache.apify')) {
             $time = config('cache.apify_time', 24*60);
-            $key = env("SHOP_UUID") . ":" .  $url;
+            $key = env("SHOP_UUID") . ":" .  $url . ":" . md5(json_encode($data));
             $cacheValue = Cache::get($key);
             if ($cacheValue) {
                 return $cacheValue;
