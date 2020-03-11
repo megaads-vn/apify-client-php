@@ -274,9 +274,9 @@ class Client
     public static function request($url, $method = "GET", $data = [], $headers = [])
     {
         $cacheValue = false;
-        if (config('cache.apify')) {
-            $time = config('cache.apify_time', 24*60);
-            $key = env("SHOP_UUID") . ":" .  $url . ":" . md5(json_encode($data));
+        $key = env("SHOP_UUID") . ":" .  $url . ":" . md5(json_encode($data));
+        $time = config('cache.apify_time', 24*60);
+        if (config('cache.apify') && $method == "GET" && (strpos($url, 'cart') === false)) {
             $cacheValue = Cache::get($key);
             if ($cacheValue) {
                 return $cacheValue;
