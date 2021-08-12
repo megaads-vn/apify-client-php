@@ -172,6 +172,15 @@ class Client
         if (count(self::$client->filters) > 0) {
             $retval .= "&filters=";
             foreach (self::$client->filters as $key => $value) {
+                if(is_array($value["value"])){
+                    $valueEncoded = [];
+                    foreach($value["value"] as $v){
+                        $valueEncoded[] = urlencode($v);
+                    }
+                    $value["value"] = $valueEncoded;
+                }else{
+                    $value["value"] = urlencode($value["value"]);
+                }
                 switch ($value["operator"]) {
                     case self::SELECTION_EQUAL:
                     case self::SELECTION_NOT_EQUAL:
