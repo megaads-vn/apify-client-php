@@ -313,6 +313,7 @@ class Client
         curl_setopt($channel, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($channel, CURLOPT_MAXREDIRS, 3);
         curl_setopt($channel, CURLOPT_POSTREDIR, 1);
+        curl_setopt($channel, CURLOPT_ENCODING, "");
         $response = curl_exec($channel);
         curl_close($channel);
         $retval = json_decode($response, true);
